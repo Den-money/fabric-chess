@@ -13,17 +13,24 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'gradle'
 
       - name: Build with Gradle
-        run: chmod +x gradlew && ./gradlew build
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew && ./gradlew build
+          elif [ -f "./fabric-chess/gradlew" ]; then
+            cd fabric-chess && chmod +x ./gradlew && ./gradlew build
+          else
+            echo "gradlew not found!" && exit 1
+          fi
 
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
           name: fabric-chess-mod
-          path: build/libs/*.jar
+          path: "**/build/libs/*.jar"
